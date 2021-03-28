@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "34676264754",
+    "project_id": "party-and-meat",
+    "storage_bucket": "party-and-meat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34676264754:android:c0447995bbb6b129a9d12b",
+        "android_client_info": {
+          "package_name": "com.example.kotlinmeat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34676264754-qf60dtl4u451nif09lgng4evg4c1ad5t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuqichuoC8ytlbDHzlw7dsiaRa10FxB4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34676264754-qf60dtl4u451nif09lgng4evg4c1ad5t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
