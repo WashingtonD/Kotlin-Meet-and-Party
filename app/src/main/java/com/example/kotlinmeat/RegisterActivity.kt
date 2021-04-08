@@ -1,5 +1,6 @@
-package com.example.kotlinmeat
+ package com.example.kotlinmeat
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,9 +8,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import java.util.*
 
 
-class RegisterActivity : AppCompatActivity() {
+ class RegisterActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
@@ -34,13 +36,15 @@ class RegisterActivity : AppCompatActivity() {
         }
 
 
-
     }
 
+        @SuppressLint("SetTextI18n")
         private fun performreg()
         {
             val email = binding.emailReg.text.toString()
             val password  = binding.passwordReg.text.toString()
+            val id = UUID.randomUUID().toString().replace("-","")
+            binding.passValidText.text = id
             if(email.isEmpty() || password.isEmpty()) {
                 val toas = Toast.makeText(this,"Please enter valid information in email/pw",Toast.LENGTH_SHORT).show()
                 return
@@ -67,6 +71,12 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this,"Failed to create user: ${it.message}",Toast.LENGTH_SHORT).show()
                 }
         }
+
+
+      private fun UploadProfileImage()
+      {
+
+      }
 
 
 }
