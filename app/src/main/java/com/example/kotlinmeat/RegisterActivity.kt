@@ -1,4 +1,4 @@
- package com.example.kotlinmeat
+package com.example.kotlinmeat
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -21,7 +21,7 @@ import java.util.*
      lateinit var imageLink: String
  }
 
- class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
@@ -49,6 +49,7 @@ import java.util.*
         }
 
 
+
     }
 
         @SuppressLint("SetTextI18n")
@@ -56,7 +57,6 @@ import java.util.*
         {
             val email = binding.emailReg.text.toString()
             val password  = binding.passwordReg.text.toString()
-            val id = UUID.randomUUID().toString().replace("-","")
             if(email.isEmpty() || password.isEmpty()) {
                 val toas = Toast.makeText(this,"Please enter valid information in email/pw",Toast.LENGTH_SHORT).show()
                 return
@@ -86,6 +86,7 @@ import java.util.*
                     Toast.makeText(this,"Failed to create user: ${it.message}",Toast.LENGTH_SHORT).show()
                 }
         }
+
 
 }
 
