@@ -1,17 +1,32 @@
-package com.example.kotlinmeat
+ package com.example.kotlinmeat
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import java.util.*
 
+ class User{
+     lateinit var name: String
+     lateinit var id: String
+     lateinit var email: String
+     lateinit var birthdate: String
+     lateinit var currentLocation: Point
+     lateinit var surename: String
+     lateinit var imageLink: String
+ }
 
-class RegisterActivity : AppCompatActivity() {
+ class RegisterActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +49,14 @@ class RegisterActivity : AppCompatActivity() {
         }
 
 
-
     }
 
+        @SuppressLint("SetTextI18n")
         private fun performreg()
         {
             val email = binding.emailReg.text.toString()
             val password  = binding.passwordReg.text.toString()
+            val id = UUID.randomUUID().toString().replace("-","")
             if(email.isEmpty() || password.isEmpty()) {
                 val toas = Toast.makeText(this,"Please enter valid information in email/pw",Toast.LENGTH_SHORT).show()
                 return
@@ -59,15 +75,17 @@ class RegisterActivity : AppCompatActivity() {
                     if(!it.isSuccessful)  return@addOnCompleteListener
                     // else for successful reg
                     Log.d("Main","Successfuly created user with uid: ${it.result?.user?.uid}")
-
-
+                    val intent = Intent(this@RegisterActivity, NewuserActivity::class.java)
+                    intent.putExtra("Email",email)
+                    intent.putExtra("Password",password)
+                    intent.putExtra("id",it.result?.user?.uid)
+                    startActivity(intent)
                 }
                 .addOnFailureListener {
                     Log.d("Main","Failed to create user: ${it.message}")
                     Toast.makeText(this,"Failed to create user: ${it.message}",Toast.LENGTH_SHORT).show()
                 }
         }
-
 
 }
 
