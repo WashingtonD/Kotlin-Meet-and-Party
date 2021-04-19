@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.net.toUri
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.kotlinmeat.databinding.ActivityMainScreenBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -49,7 +50,7 @@ class MainScreenActivity: AppCompatActivity() {
         user.name = ""
         user.surename = ""
         initUser()
-
+        Log.d("AfterInit","Username: ${user.name}, Link: ${user.imageLink}")
 
         initfields()
         initFunc()
@@ -113,41 +114,100 @@ class MainScreenActivity: AppCompatActivity() {
                 )).build()
     }
 
-    private fun createHeader() {
-        val uid = FirebaseAuth.getInstance().uid
+    private fun initUser()
+    {
+        /*val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("users/$uid/imageLink")
+                //ref.child("users").child(FirebaseAuth.getInstance().uid.toString())
+                .addListenerForSingleValueEvent(object : ValueEventListener{
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.d("MainActivity", "Cannot download image")
+                    }
 
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        var pic = snapshot.getValue().toString()
+                        Log.d("MainActivity", "Adress: $pic")
+                        user.imageLink = pic
+                    }
+                })*/
+    }
+
+
+
+    private fun createHeader() {
+        var name: String = ""
+        val uid = FirebaseAuth.getInstance().uid
+        //Log.d("Header","Name: $name, Link: ${user.imageLink}")
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        readFirebaseData(object: FirebaseCallBack{
+            override fun onCallBack(list: MutableList<String>) {
+               // for(ds in list)
+               // {
+                    user.name = list.elementAt(0)
+                    user.email = list.elementAt(1)
+                    user.imageLink = list.elementAt(2)
+                    Log.d("Autho","User.name = ${user.name}")
+               // }
+                val prof = ProfileDrawerItem().withName(user.name)
+                        .withEmail(user.email)
+                        .withIcon(user.imageLink.toUri())
+                mHeader.removeProfileByIdentifier(228)
+                mHeader.addProfiles(prof)
+            }
+        })
+
+
         mHeader = AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
-                        ProfileDrawerItem().withName(FirebaseAuth.getInstance().uid)
+                        ProfileDrawerItem()
+                                .withIdentifier(228)
+                               .withName(name)
                                 .withEmail(user.email)
                             //.withIcon(user.imageLink)
-                ).build()
+         ).build()
     }
 
     private fun initfields() {
         mToolbar = binding.mainToolbar
     }
 
-    private fun initUser()
-    {
-        val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("users/$uid/imageLink")
-        //ref.child("users").child(FirebaseAuth.getInstance().uid.toString())
-            .addListenerForSingleValueEvent(object : ValueEventListener{
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d("MainActivity", "Cannot download image")
-                }
+interface FirebaseCallBack{
+    fun onCallBack(list: MutableList<String>)
+}
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    var pic = snapshot.getValue().toString()
-                    Log.d("MainActivity", "Adress: $pic")
-                    user.imageLink = pic
-                }
-            })
-    }
+fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
+{
+    val uid = FirebaseAuth.getInstance().uid
+    val ref = FirebaseDatabase.getInstance().getReference("users/$uid")
+    ref.addListenerForSingleValueEvent(object: ValueEventListener{
+        override fun onCancelled(error: DatabaseError) {
+            Log.d("Autho","Something went wrong")
+        }
+        override fun onDataChange(snapshot: DataSnapshot) {
+         val list = ArrayList<String>()
+            /*for(ds in snapshot.children)
+            {
+                val user = ds.getValue(User::class.java)
+                list.add(user!!)
+            }*/
+            val user = snapshot.child("name").getValue(String::class.java)
+            list.add(user!!)
+            val email = snapshot.child("email").getValue(String::class.java)
+            list.add(email!!)
+            val image = snapshot.child("imageLink").getValue(String::class.java)
+            list.add(image!!)
+            Log.d("Autho","List: $list")
+           // val lii = listOf(user,email,image)
+            //Log.d("Autho","Lii: ${lii.elementAt(0)},${lii.elementAt(1)},${lii.elementAt(2)}")
+            firebaseCallBack.onCallBack(list)
+        }
+    })
+}
+
+
+
 
 
 }
