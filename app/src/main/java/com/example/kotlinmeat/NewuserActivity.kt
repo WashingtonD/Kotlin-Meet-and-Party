@@ -117,6 +117,12 @@ class NewuserActivity: AppCompatActivity() {
             ref.setValue(user)
                     .addOnSuccessListener {
                         Log.d("NewUA","User saved to Firebase database")
+                        val intent = Intent(this,MainScreenActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.putExtra("Image_Link",user.imageLink)
+                        intent.putExtra("email",user.email)
+                        intent.putExtra("id",user.id)
+                        startActivity(intent)
                     }
         }
 

@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
-import java.util.*
 
  class User{
      lateinit var name: String

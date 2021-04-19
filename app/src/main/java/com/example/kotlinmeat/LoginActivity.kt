@@ -26,7 +26,10 @@ class LoginActivity: AppCompatActivity() {
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password)
                 .addOnCompleteListener{
                     if(!it.isSuccessful) {return@addOnCompleteListener}
-                Log.d("Login","User with uid: ${it.result?.user?.uid} has successfuly logged in")
+                Log.d("Login","User with uid: ${it.result?.user?.uid} has successfully logged in")
+                    val intent = Intent(this,MainScreenActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
                 }
                 .addOnFailureListener{
                     Log.d("Login", "Failed to log in: ${it.message}")
@@ -39,11 +42,5 @@ class LoginActivity: AppCompatActivity() {
            Log.d("Login","Try to get back to registration")
            finish()
        }
-
-        binding.button.setOnClickListener{
-            val intent = Intent(this,NewuserActivity::class.java)
-            startActivity(intent)
-
-         }
 }
 }

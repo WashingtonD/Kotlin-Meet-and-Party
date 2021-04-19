@@ -10,14 +10,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.KotlinMeat">
-        <activity android:name=".refreshActivity"></activity>
-        <activity android:name=".DrawerActivity" />
+        <!--activity android:name=".refreshActivity"></activity-->
         <activity
             android:name=".SplashScreen"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainScreenActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -25,7 +29,6 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".NewuserActivity" />
-        <activity android:name=".MainScreenActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".EditProfileActivity"/>
     </application>
