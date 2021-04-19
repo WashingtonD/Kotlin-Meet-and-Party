@@ -2,10 +2,13 @@ package com.example.kotlinmeat
 
 import android.content.Intent
 import android.graphics.Point
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -24,6 +27,10 @@ import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IProfile
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
+import com.mikepenz.materialdrawer.util.DrawerImageLoader
+import com.squareup.picasso.Picasso
 
 
 class MainScreenActivity: AppCompatActivity() {
@@ -52,6 +59,41 @@ class MainScreenActivity: AppCompatActivity() {
         initUser()
         Log.d("AfterInit","Username: ${user.name}, Link: ${user.imageLink}")
 
+        DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
+            override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable) {
+                Picasso.with(imageView.context).load(uri).placeholder(placeholder).into(imageView)
+            }
+
+            override fun cancel(imageView: ImageView) {
+                Picasso.with(imageView.context).cancelRequest(imageView)
+            }
+
+            /*
+            override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
+                super.set(imageView, uri, placeholder, tag)
+            }
+
+            override fun placeholder(ctx: Context): Drawable {
+                return super.placeholder(ctx)
+            }
+
+            override fun placeholder(ctx: Context, tag: String?): Drawable {
+                return super.placeholder(ctx, tag)
+            }
+            */
+        })
+
+
+
+
+
+
+
+
+
+
+
+
         initfields()
         initFunc()
         val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
@@ -74,6 +116,8 @@ class MainScreenActivity: AppCompatActivity() {
 
 
     }
+
+
 
     private fun initFunc() {
         setSupportActionBar(mToolbar)
@@ -148,19 +192,30 @@ class MainScreenActivity: AppCompatActivity() {
                     user.imageLink = list.elementAt(2)
                     Log.d("Autho","User.name = ${user.name}")
                // }
+                mHeader.removeProfileByIdentifier(228)
                 val prof = ProfileDrawerItem().withName(user.name)
                         .withEmail(user.email)
+                        .withIdentifier(228)
                         .withIcon(user.imageLink.toUri())
-                mHeader.removeProfileByIdentifier(228)
                 mHeader.addProfiles(prof)
             }
         })
 
-
+        val intent = Intent(this,ProfileActivity::class.java)
         mHeader = AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
-                .addProfiles(
+                .withOnAccountHeaderProfileImageListener(object: AccountHeader.OnAccountHeaderProfileImageListener{
+                    override fun onProfileImageClick(view: View, profile: IProfile<*>, current: Boolean): Boolean {
+                        intent.putExtra("image",user.imageLink)
+                        startActivity(intent)
+                        return false
+                    }
+
+                    override fun onProfileImageLongClick(view: View, profile: IProfile<*>, current: Boolean): Boolean {
+                      return false
+                    }
+                }).addProfiles(
                         ProfileDrawerItem()
                                 .withIdentifier(228)
                                .withName(name)
