@@ -2,9 +2,9 @@ package com.example.kotlinmeat
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import com.example.kotlinmeat.databinding.ActivityProfileBinding
 import com.squareup.picasso.Picasso
 
@@ -16,8 +16,10 @@ class ProfileActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val imageadres = intent.getStringExtra("image")
 
-        Picasso.with(this).load(intent.getStringExtra("image")?.toUri()).fit().centerInside().into(binding.imageView)
+        Log.d("ProfileActivity","ImageLink: $imageadres")
+        Picasso.with(this).load(imageadres).fit().centerInside().into(binding.profilePhoto)
         val button = findViewById<Button>(R.id.button_logout)
         val button2 = findViewById<Button>(R.id.button_edit)
         val button3 = findViewById<Button>(R.id.button_profile_back)
