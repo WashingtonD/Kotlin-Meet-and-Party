@@ -49,6 +49,9 @@ class MainScreenActivity: AppCompatActivity() {
         binding = ActivityMainScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //map
+
+
         user.birthdate = ""
         user.email = ""
         user.currentLocation = Point(1,0)
@@ -96,7 +99,7 @@ class MainScreenActivity: AppCompatActivity() {
 
         initfields()
         initFunc()
-        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
+/*        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
         val textView = findViewById<TextView>(R.id.tv1)
 
         // Refresh function for the layout
@@ -105,14 +108,13 @@ class MainScreenActivity: AppCompatActivity() {
             textView.text = "Refreshed"
 
             swipeRefreshLayout.isRefreshing = false
-        }
+        }*/
+        /* val button = findViewById<Button>(R.id.button_profile)
 
-        val button = findViewById<Button>(R.id.button_profile)
-
-        button.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
-            startActivity(intent)
-        }
+         button.setOnClickListener {
+             val intent = Intent(this, ProfileActivity::class.java)
+             startActivity(intent)
+         }*/
 
 
     }
@@ -137,6 +139,25 @@ class MainScreenActivity: AppCompatActivity() {
                                  .withIconTintingEnabled(true)
                                  .withName("My messages")
                                  .withSelectable(false),
+
+                    //Map drawer
+                        PrimaryDrawerItem().withIdentifier(300)
+                            .withIconTintingEnabled(true)
+                            .withName("Map")
+                            .withSelectable(false)
+                            .withOnDrawerItemClickListener(object: Drawer.OnDrawerItemClickListener{
+                                override fun onItemClick(
+                                    view: View?,
+                                    position: Int,
+                                    drawerItem: IDrawerItem<*>
+                                ): Boolean {
+                                    val intent = Intent(this@MainScreenActivity,DisplayMapActivity::class.java)
+//                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                    return false
+                                }
+                            } ),
+                    //Logout drawer
                         PrimaryDrawerItem().withIdentifier(200)
                             .withIconTintingEnabled(true)
                             .withName("LogOut")
