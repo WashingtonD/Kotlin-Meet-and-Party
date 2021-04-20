@@ -31,6 +31,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.squareup.picasso.Picasso
+import java.util.logging.Logger.global
 
 
 class MainScreenActivity: AppCompatActivity() {
@@ -229,6 +230,7 @@ class MainScreenActivity: AppCompatActivity() {
                 .withOnAccountHeaderProfileImageListener(object: AccountHeader.OnAccountHeaderProfileImageListener{
                     override fun onProfileImageClick(view: View, profile: IProfile<*>, current: Boolean): Boolean {
                         intent.putExtra("image",user.imageLink)
+                      // var profilePic = user.imageLink
                         startActivity(intent)
                         return false
                     }
