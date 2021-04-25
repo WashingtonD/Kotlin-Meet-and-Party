@@ -7,13 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.kotlinmeat.databinding.ActivityMainScreenBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -31,7 +28,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.squareup.picasso.Picasso
-import java.util.logging.Logger.global
 
 
 class MainScreenActivity: AppCompatActivity() {
@@ -60,6 +56,7 @@ class MainScreenActivity: AppCompatActivity() {
         user.imageLink = ""
         user.name = ""
         user.surename = ""
+        user.nickname = ""
         initUser()
         Log.d("AfterInit","Username: ${user.name}, Link: ${user.imageLink}")
 
@@ -202,26 +199,7 @@ class MainScreenActivity: AppCompatActivity() {
 
     private fun createHeader() {
         var name: String = ""
-        val uid = FirebaseAuth.getInstance().uid
-        //Log.d("Header","Name: $name, Link: ${user.imageLink}")
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        readFirebaseData(object: FirebaseCallBack{
-            override fun onCallBack(list: MutableList<String>) {
-               // for(ds in list)
-               // {
-                    user.name = list.elementAt(0)
-                    user.email = list.elementAt(1)
-                    user.imageLink = list.elementAt(2)
-                    Log.d("Autho","User.name = ${user.name}")
-               // }
-                mHeader.removeProfileByIdentifier(228)
-                val prof = ProfileDrawerItem().withName(user.name)
-                        .withEmail(user.email)
-                        .withIdentifier(228)
-                        .withIcon(user.imageLink.toUri())
-                mHeader.addProfiles(prof)
-            }
-        })
+        update_profile()
 
         val intent = Intent(this,ProfileActivity::class.java)
         mHeader = AccountHeaderBuilder()
@@ -230,8 +208,15 @@ class MainScreenActivity: AppCompatActivity() {
                 .withOnAccountHeaderProfileImageListener(object: AccountHeader.OnAccountHeaderProfileImageListener{
                     override fun onProfileImageClick(view: View, profile: IProfile<*>, current: Boolean): Boolean {
                         intent.putExtra("image",user.imageLink)
+                        intent.putExtra("nickname", user.nickname)
+                        intent.putExtra("name",user.name)
+                        intent.putExtra("surname",user.surename)
+                        intent.putExtra("description",user.info)
+                        intent.putExtra("phone",user.phone)
+                        //intent.putExtra("")
                       // var profilePic = user.imageLink
                         startActivity(intent)
+                        update_profile()
                         return false
                     }
 
@@ -241,9 +226,9 @@ class MainScreenActivity: AppCompatActivity() {
                 }).addProfiles(
                         ProfileDrawerItem()
                                 .withIdentifier(228)
-                               .withName(name)
+                                 .withName(name)
                                 .withEmail(user.email)
-                            //.withIcon(user.imageLink)
+                                //.withIcon(user.imageLink)
          ).build()
     }
 
@@ -259,7 +244,7 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
 {
     val uid = FirebaseAuth.getInstance().uid
     val ref = FirebaseDatabase.getInstance().getReference("users/$uid")
-    ref.addListenerForSingleValueEvent(object: ValueEventListener{
+    ref.addListenerForSingleValueEvent(object: ValueEventListener {
         override fun onCancelled(error: DatabaseError) {
             Log.d("Autho","Something went wrong")
         }
@@ -276,6 +261,14 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
             list.add(email!!)
             val image = snapshot.child("imageLink").getValue(String::class.java)
             list.add(image!!)
+            val surname = snapshot.child("surename").getValue(String::class.java)
+            list.add(surname!!)
+            val phone = snapshot.child("phone").getValue(String::class.java)
+            list.add(phone!!)
+            val description = snapshot.child("info").getValue(String::class.java)
+            list.add(description!!)
+            val nickname = snapshot.child("nickname").getValue(String::class.java)
+            list.add(nickname!!)
             Log.d("Autho","List: $list")
            // val lii = listOf(user,email,image)
             //Log.d("Autho","Lii: ${lii.elementAt(0)},${lii.elementAt(1)},${lii.elementAt(2)}")
@@ -284,7 +277,33 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
     })
 }
 
-
+private fun update_profile()
+{
+    val uid = FirebaseAuth.getInstance().uid
+    //Log.d("Header","Name: $name, Link: ${user.imageLink}")
+    val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+    readFirebaseData(object: FirebaseCallBack{
+        override fun onCallBack(list: MutableList<String>) {
+            // for(ds in list)
+            // {
+            user.name = list.elementAt(0)
+            user.email = list.elementAt(1)
+            user.imageLink = list.elementAt(2)
+            user.surename = list.elementAt(3)
+            user.phone = list.elementAt(4)
+            user.info = list.elementAt(5)
+            user.nickname = list.elementAt(6)
+            Log.d("Autho","User.name = ${user.name}")
+            // }
+            mHeader.removeProfileByIdentifier(228)
+            val prof = ProfileDrawerItem().withName(user.name)
+                    .withEmail(user.email)
+                    .withIdentifier(228)
+                    .withIcon(user.imageLink.toUri())
+            mHeader.addProfiles(prof)
+        }
+    })
+}
 
 
 

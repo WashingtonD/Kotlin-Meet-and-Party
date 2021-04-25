@@ -107,13 +107,16 @@ class NewuserActivity: AppCompatActivity() {
             val user = User()
             //u.passw = intent.getStringExtra("Password")!!
             user.email = intent.getStringExtra("Email")!!
-            user.surename = ""
+            user.surename = binding.editTextSurname.text.toString()
             user.birthdate = ""
             user.currentLocation = Point(1,0)
             user.id = intent.getStringExtra("id")!!
             user.name =  binding.editTextTextPersonName.text.toString()
             user.imageLink = profileImageUrl
-            Log.d("NewUA","${user.email} || ${user.surename} || ${user.birthdate} || ${user.currentLocation} || ${user.name} ||${user.id} ||  ${user.imageLink} ")
+            user.nickname = intent.getStringExtra("nickname")!!
+            user.phone = binding.editTextPhone.text.toString()
+            user.info = binding.editTextDescription.text.toString()
+            Log.d("NewUA","${user.email} || ${user.surename} || ${user.nickname} || ${user.birthdate} || ${user.currentLocation} || ${user.name} ||${user.id} ||  ${user.imageLink} ")
             ref.setValue(user)
                     .addOnSuccessListener {
                         Log.d("NewUA","User saved to Firebase database")
@@ -121,7 +124,11 @@ class NewuserActivity: AppCompatActivity() {
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                         intent.putExtra("Image_Link",user.imageLink)
                         intent.putExtra("email",user.email)
+                        intent.putExtra("nickname",user.nickname)
                         intent.putExtra("id",user.id)
+                        intent.putExtra("surname",user.surename)
+                        intent.putExtra("phone",user.phone)
+                        intent.putExtra("description",user.info)
                         startActivity(intent)
                     }
         }

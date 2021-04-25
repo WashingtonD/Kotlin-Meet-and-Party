@@ -18,6 +18,9 @@ import com.google.firebase.auth.FirebaseAuth
      lateinit var currentLocation: Point
      lateinit var surename: String
      lateinit var imageLink: String
+     lateinit var info: String
+     lateinit var nickname: String
+     lateinit var phone: String
  }
 
 class RegisterActivity : AppCompatActivity() {
@@ -54,9 +57,10 @@ class RegisterActivity : AppCompatActivity() {
         @SuppressLint("SetTextI18n")
         private fun performreg()
         {
+            val nickname = binding.usernameReg.text.toString()
             val email = binding.emailReg.text.toString()
             val password  = binding.passwordReg.text.toString()
-            if(email.isEmpty() || password.isEmpty()) {
+            if(email.isEmpty() || password.isEmpty() || nickname.isEmpty()) {
                 val toas = Toast.makeText(this,"Please enter valid information in email/pw",Toast.LENGTH_SHORT).show()
                 return
             }
@@ -78,6 +82,7 @@ class RegisterActivity : AppCompatActivity() {
                     intent.putExtra("Email",email)
                     intent.putExtra("Password",password)
                     intent.putExtra("id",it.result?.user?.uid)
+                    intent.putExtra("nickname", nickname)
                     startActivity(intent)
                 }
                 .addOnFailureListener {
