@@ -2,6 +2,7 @@ package com.example.kotlinmeat
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,14 @@ class ProfileActivity: AppCompatActivity() {
 
     lateinit var binding: ActivityProfileBinding
 
+    lateinit var name: String
+    lateinit var surname: String
+    lateinit var description: String
+    lateinit var nickname: String
+    lateinit var phone: String
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -24,16 +33,16 @@ class ProfileActivity: AppCompatActivity() {
         val imageadres = intent.getStringExtra("image")
         Log.d("ProfileActivity","ImageLink: $imageadres")
         Picasso.with(this).load(imageadres).fit().centerInside().into(binding.profilePhoto)
-        binding.textViewName.text = intent.getStringExtra("name")
-        binding.textViewSurname.text = intent.getStringExtra("surname")
-        binding.textViewDescription.text = intent.getStringExtra("description")
-        binding.textViewNickname.text = intent.getStringExtra("nickname")
-        binding.textViewPhone.text = intent.getStringExtra("phone")
-        var name = intent.getStringExtra("name")
-        var surname  = intent.getStringExtra("surname")
-        var description = intent.getStringExtra("description")
-        var nickname = intent.getStringExtra("nickname")
-        var phone = intent.getStringExtra("phone")
+        binding.textViewName.text = Html.fromHtml("Name: "+ "<b>" + intent.getStringExtra("name")+ "</b>")
+        binding.textViewSurname.text = Html.fromHtml("Surname: "+ "<b>" + intent.getStringExtra("surname")+ "</b>")
+        binding.textViewDescription.text = Html.fromHtml("Info: "+ "<b>" + intent.getStringExtra("description")+ "</b>")
+        binding.textViewNickname.text = Html.fromHtml("Nickname: "+ "<b>" + intent.getStringExtra("nickname")+ "</b>")
+        binding.textViewPhone.text = Html.fromHtml("Phone: " + "<b>" + intent.getStringExtra("phone")+ "</b>")
+        name = intent.getStringExtra("name")!!
+        surname  = intent.getStringExtra("surname")!!
+        description = intent.getStringExtra("description")!!
+        nickname = intent.getStringExtra("nickname")!!
+        phone = intent.getStringExtra("phone")!!
 
 
 
@@ -100,11 +109,16 @@ class ProfileActivity: AppCompatActivity() {
     {
         readFriebaseData(object: FirebaseCallback{
             override fun onCallback(list: MutableList<String>){
-                binding.textViewName.text = list.elementAt(0)
-                binding.textViewSurname.text = list.elementAt(3)
-                binding.textViewDescription.text = list.elementAt(5)
-                binding.textViewNickname.text = list.elementAt(6)
-                binding.textViewPhone.text = list.elementAt(4)
+                binding.textViewName.text =       Html.fromHtml("Name: "+ "<b>" + list.elementAt(0) + "</b>")
+                binding.textViewSurname.text =    Html.fromHtml("Surname: "+ "<b>" + list.elementAt(3)+ "</b>")
+                binding.textViewDescription.text =Html.fromHtml("Info: " + "<b>" + list.elementAt(5) + "</b>")
+                binding.textViewNickname.text =   Html.fromHtml("Nickname: " + "<b>" + list.elementAt(6)+ "</b>")
+                binding.textViewPhone.text =      Html.fromHtml("Phone: " +  "<b>" +list.elementAt(4)+ "</b>")
+                name = list.elementAt(0)
+                surname = list.elementAt(3)
+                description = list.elementAt(5)
+                nickname = list.elementAt(6)
+                phone = list.elementAt(4)
                 Picasso.with(this@ProfileActivity).load(list.elementAt(2)).fit().centerInside().into(binding.profilePhoto)
             }
         })
