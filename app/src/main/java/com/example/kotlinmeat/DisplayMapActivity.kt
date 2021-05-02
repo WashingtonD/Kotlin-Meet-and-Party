@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 
-class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
+class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
     private lateinit var locationManager: LocationManager
@@ -62,6 +62,14 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
     //private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
+    private val Szymon = LatLng(51.77675517369065, 19.487036284565484)
+    private val Maciek = LatLng(51.776516197060275, 19.489246424793514)
+    private val Bartek = LatLng(51.77396019193792, 19.485677109866533)
+
+    private lateinit var markerSzymon: Marker
+    private lateinit var markerMaciek: Marker
+    private lateinit var markerBartek: Marker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -71,6 +79,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapFrag = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFrag?.getMapAsync(this)
+
 
 
         //getlastlocation()
@@ -86,6 +95,8 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
         // mapFragment.getMapAsync(this)
 
     }
+
+
 
     /*private val locationListener: LocationListener = object: LocationListener{
         override fun onLocationChanged(location: Location) {
@@ -223,7 +234,51 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
         {
             mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper())
         }
+        markerSzymon = map.addMarker(
+                MarkerOptions()
+                        .position(Szymon)
+                        .title("Szymon")
+        )
+        markerSzymon.tag = 0
+        markerMaciek = map.addMarker(
+                MarkerOptions()
+                        .position(Maciek)
+                        .title("Maciek")
+        )
+        markerMaciek.tag = 0
+        markerBartek = map.addMarker(
+                MarkerOptions()
+                        .position(Bartek)
+                        .title("Bartek")
+        )
+        markerBartek.tag = 0
+        map.setOnMarkerClickListener(this)
+
+    }
+    override fun onMarkerClick(marker: Marker): Boolean{
+
+        // Retrieve the data from the marker.
+        val clickCount = marker.tag as? Int
+
+        // Check if a click count was set, then display the click count.
+        clickCount?.let {
+            val newClickCount = it + 1
+            marker.tag = newClickCount
+            Toast.makeText(
+                    this,
+                    "${marker.title} has been clicked $newClickCount times.",
+                    Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false
     }
 
 
 }
+
+
+
