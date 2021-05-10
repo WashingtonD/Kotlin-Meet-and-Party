@@ -1,6 +1,7 @@
 package com.example.kotlinmeat
 
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
@@ -13,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -21,9 +21,21 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import kotlin.math.pow
 
 
 class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+
+    /// Constants connected with distance calculations
+    val pi = kotlin.math.PI
+    val rad = 6371
+    ///
+
 
     private lateinit var map: GoogleMap
     private lateinit var locationManager: LocationManager
@@ -35,31 +47,121 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
     var mLastLocation: Location? = null
     internal var mCurrentLocationMarker: Marker? = null
     internal var mFusedLocationProviderClient: FusedLocationProviderClient? = null
+    private lateinit var anotherUserLoca: User
+    private var MapReady = false
+    private var needToDo = false
+    var mNamedMarkers = mutableMapOf<String,Marker>()
+    lateinit var startPosOfUser: Point
+
 
     internal var mLocationCallback: LocationCallback = object : LocationCallback() {
         fun OnLocationResult(locationResult: LocationResult) {
             val locationList = locationResult.locations
             if (locationList.isEmpty()) {
                 val location = locationList.last()
-                Log.d("MapsActivity", "Location" + location.latitude + " " + location.longitude)
+                Log.d("MapActivity", "Location" + location.latitude + " " + location.longitude)
                 mLastLocation = location
                 if (mCurrentLocationMarker != null) {
                     mCurrentLocationMarker?.remove()
                 }
-
                 val latLng = LatLng(location.latitude, location.longitude)
                 val MarkerOptions = MarkerOptions()
                 MarkerOptions.position(latLng)
                 MarkerOptions.title("Current position")
                 mCurrentLocationMarker = map.addMarker(MarkerOptions)
 
-
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11.0F))
             }
         }
     }
 
-    //private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    interface FirebaseCallBack{
+        fun onCallBack(list: ArrayList<User>)
+    }
+
+    private fun checkStartUserLocation()
+    {
+
+        val uid = FirebaseAuth.getInstance().uid
+            var position = FirebaseDatabase.getInstance().getReference("/users/$uid")
+            position.child("currentLocation").get().addOnSuccessListener {
+                //startPosOfUser = it.value as Point
+                var pos = it.value as HashMap<String,Double>
+                Log.d("MapActivity","${it.value}")
+                var x = pos.get("x")
+                var y = pos.get("y")
+                var marker = map.addMarker(MarkerOptions().position(LatLng(x!!,y!!)))
+                mNamedMarkers.put(uid!!,marker)
+                marker.remove()
+            }
+                    .addOnFailureListener {
+                        Log.d("checkUserLocation","Failed to get position.")
+                    }
+    }
+
+
+    private fun getDistance(myLatitude: Double, myLongitude: Double, anotherLatitude: Double, anotherLongitude: Double): Double
+    {
+        var phi1 = (myLatitude*pi)/180
+        var phi2 = (anotherLatitude*pi)/180
+        var lambda1 = (myLongitude*pi)/180
+        var lambda2 = (anotherLongitude*pi)/180
+
+        var cu1 = kotlin.math.cos(phi1)
+        var cb2 = kotlin.math.cos(phi2)
+        var su1 = kotlin.math.sin(phi1)
+        var sb2 = kotlin.math.sin(phi2)
+        var delta = lambda2-lambda1
+        var cdelta = kotlin.math.cos(delta)
+        var sdelta = kotlin.math.sin(delta)
+
+        var y = kotlin.math.sqrt((cb2*sdelta).pow(2)+(cu1*sb2-su1*cb2*cdelta).pow(2))
+        var x = su1*sb2+cu1*cb2*cdelta
+        var ad = kotlin.math.atan2(y,x)
+        var dist = ad*rad
+
+        return dist
+    }
+
+
+
+   /* private fun getLoc(firebaseCallBack: FirebaseCallBack) {
+        if (needToDo == false) {
+            needToDo = true
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/users")
+            ref.addValueEventListener((object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("MapActivity", "$error Can't get user loc in getLoc fun")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    var list = ArrayList<User>()
+                    snapshot.children.forEach {
+                        val loc = it.getValue(User::class.java)
+                        list.add(loc!!)
+                        Log.d("MapActivity", "Got user $loc")
+                    }
+                    firebaseCallBack.onCallBack(list)
+                }
+            }))
+        }
+    }
+    private fun update_pr()
+    {
+        getLoc(object: FirebaseCallBack{
+            override fun onCallBack(list: ArrayList<User>) {
+                for(ds in list) {
+                    anotherUserLoca = ds
+                    var marker = map.addMarker(MarkerOptions().position(LatLng(anotherUserLoca.currentLocation.x.toDouble(), anotherUserLoca.currentLocation.y.toDouble())))
+                    mNamedMarkers.put(anotherUserLoca.id, marker)
+                    Log.d("MapActivity", "User ${anotherUserLoca.id} was added to NamedMarkers")
+                }
+            }
+        })
+    }*/
+
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
     private val Szymon = LatLng(51.77675517369065, 19.487036284565484)
@@ -73,88 +175,20 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        // fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        checkStartUserLocation()
 
+
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mapFrag = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFrag?.getMapAsync(this)
 
 
 
-        //getlastlocation()
-        /*locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10L, 0f, locationListener)
-        }catch (ex: SecurityException){
-            Log.d("Map","Security exception, no location")
-        }*/
-
-        // val mapFragment = supportFragmentManager
-        //   .findFragmentById(R.id.map) as SupportMapFragment
-        // mapFragment.getMapAsync(this)
 
     }
 
 
-
-    /*private val locationListener: LocationListener = object: LocationListener{
-        override fun onLocationChanged(location: Location) {
-            longitude = location.longitude
-            latitude = location.latitude
-            Log.d("MapAct","Long: $longitude, Lat: $latitude")
-        }
-        override fun onProviderDisabled(provider: String) {
-            super.onProviderDisabled(provider)
-        }
-        override fun onProviderEnabled(provider: String) {
-            super.onProviderEnabled(provider)
-        }
-    }*/
-
-    // fun getlastlocation()
-    // {
-
-
-    // }
-
-
-    /* override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        //etlastlocation()
-        val UL = LatLng(latitude, longitude)
-        map.addMarker(
-                MarkerOptions().position(UL).title("Your location $latitude || $longitude")
-                        )
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(UL, 10f))
-
-    }*/
-
-    /*override fun OnMapReady(googleMap: GoogleMap){
-       map = googleMap
-        map.mapType = GoogleMap.MAP_TYPE_HYBRID
-
-        mLocationRequest = LocationRequest()
-        mLocationRequest.interval = 120000
-        mLocationRequest.fastestInterval = 120000
-        mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            {
-                mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper())
-                map.isMyLocationEnabled = true
-            }
-            else
-            {
-                checkLocationPermission()
-            }
-        }
-        else
-        {
-            mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper())
-        }
-   }*/
     private fun checkLocationPermission(){
         if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
@@ -194,7 +228,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         mFusedLocationProviderClient?.requestLocationUpdates(
                                 mLocationRequest,
                                 mLocationCallback,
-                                Looper.myLooper()
+                                Looper.myLooper()!!
                         )
                         map.isMyLocationEnabled = true
                     }
@@ -213,17 +247,121 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
 
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap!!
-        map.mapType = GoogleMap.MAP_TYPE_HYBRID
+        map.mapType = GoogleMap.MAP_TYPE_NORMAL
         mLocationRequest = LocationRequest()
         mLocationRequest.interval = 120000
         mLocationRequest.fastestInterval = 120000
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             {
-                mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper())
+                mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper()!!)
                 map.isMyLocationEnabled = true
+                val id = FirebaseAuth.getInstance().uid
+                val ref = FirebaseDatabase.getInstance().getReference("/users")
+                //val reference = FirebaseDatabase.getInstance().getReference("users")
+
+
+               /*ref.addValueEventListener((object: ValueEventListener{
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.d("MapActivity","$error")
+                    }
+                    override fun onDataChange(snapshot: DataSnapshot) {
+
+
+
+                        val list = mutableMapOf<String,Point>()
+                        snapshot.children.forEach{
+                        val loc = it.child("currentLocation").getValue(Point::class.java)
+                        list.put(it.key!!,loc!!)
+                        Log.d("MapActivity","Got user new loc: ${loc!!.x},${loc.y}")
+                       val ll = LatLng(loc.x.toDouble(),loc.y.toDouble())
+                        val markeropt = MarkerOptions()
+                        markeropt.position(ll)
+                        markeropt.title("User from Firebase")
+                        map.addMarker(markeropt)
+                    }
+                    }
+                }))*/
+                ref.addChildEventListener(object : ChildEventListener{
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.d("MapActivity","$error and that is why user was not added to map")
+                    }
+                    override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                        var key = snapshot.key
+                        Log.d("MapActivity","Trying to add $key user to map")
+                        //var userpos  = mCurrentLocationMarker!!.position
+
+
+                        var lat = snapshot.child("currentLocation/x").getValue(Int::class.java)
+                        var lng = snapshot.child("currentLocation/y").getValue(Int::class.java)
+                        var location = LatLng(lat!!.toDouble(),lng!!.toDouble())
+
+                        var userpos = mNamedMarkers.getOrDefault(FirebaseAuth.getInstance().uid,null)
+                        var marker = mNamedMarkers.getOrDefault(key,null)
+                        if(marker == null && key != FirebaseAuth.getInstance().uid)
+                        {
+                            if(getDistance(userpos!!.position.latitude,userpos.position.longitude,location.latitude,location.longitude) < 30) {
+                                var options = MarkerOptions().position(location).title(key)
+                                var mark = map.addMarker(options)
+                                mNamedMarkers.put(key!!, mark!!)
+                                Log.d("MapActivity", "OnChildAdded was not appropriate")
+                            }
+
+                        }
+                        else
+                        {
+                            Log.d("MapActivity","NewUser: $key Added")
+                        }
+                    }
+                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                        var key = snapshot.key
+                        Log.d("MapActivity","Location for $key user is updated")
+
+                        var lat = snapshot.child("currentLocation/x").getValue(Int::class.java)
+                        var lng = snapshot.child("currentLocation/y").getValue(Int::class.java)
+                        var location = LatLng(lat!!.toDouble(),lng!!.toDouble())
+                        var marker = mNamedMarkers.getOrDefault(key,null)
+                        if(marker == null)
+                        {
+                            var options = MarkerOptions().position(location).title(key)
+                            var mark = map.addMarker(options)
+                            mNamedMarkers.put(key!!,mark!!)
+                        }
+                        else
+                        {
+                            if(marker.position != location)
+                            {
+                                var myLat = (mNamedMarkers.getOrDefault(FirebaseAuth.getInstance().uid,null))//!!.position.latitude
+                                if(myLat != null && getDistance(myLat.position.latitude,myLat.position.longitude,marker.position.latitude,marker.position.longitude) < 1000.0) {
+                                    mNamedMarkers.remove(key)
+                                    marker.remove()
+                                    var options = MarkerOptions().position(location).title(key)
+                                    var mark = map.addMarker(options)
+                                    mNamedMarkers.put(key!!, mark!!)
+                                }
+                            }
+                            Log.d("MapActivity","OnChildChanged Good")
+                        }
+
+
+                    }
+                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                        Log.d("MapActivity","Priority for ${snapshot.key} user was changed")
+                    }
+                    override fun onChildRemoved(snapshot: DataSnapshot) {
+                        val key  = snapshot.key
+                        val marker = mNamedMarkers.getOrDefault(key,null)
+                        if(marker != null)
+                        {
+                            marker.remove()
+                        }
+
+                     Log.d("MapActivity","User $key was removed")
+                    }
+                })
+
+
             }
             else
             {
@@ -232,9 +370,28 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         }
         else
         {
-            mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper())
+            mFusedLocationProviderClient?.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper()!!)
+            /*val id = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("users/$id")
+            ref.addListenerForSingleValueEvent((object: ValueEventListener{
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("MapActivity","Can't get user loc")
+                }
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    //val list = ArrayList<Point>()
+                    val loc = snapshot.child("currentLocation").getValue(Point::class.java)
+                    //list.add(loc!!)
+                    Log.d("MapActivity","Got user new loc: ${loc!!.x},${loc.y}")
+                    val ll = LatLng(loc.x.toDouble(),loc.y.toDouble())
+                    val markeropt = MarkerOptions()
+                    markeropt.position(ll)
+                    markeropt.title("User from Firebase")
+                    map.addMarker(markeropt)
+                }
+            }))*/
+
         }
-        markerSzymon = map.addMarker(
+   /*     markerSzymon = map.addMarker(
                 MarkerOptions()
                         .position(Szymon)
                         .title("Szymon")
@@ -251,16 +408,14 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         .position(Bartek)
                         .title("Bartek")
         )
-        markerBartek.tag = 0
+        markerBartek.tag = 0*/
         map.setOnMarkerClickListener(this)
 
     }
     override fun onMarkerClick(marker: Marker): Boolean{
 
-        // Retrieve the data from the marker.
         val clickCount = marker.tag as? Int
 
-        // Check if a click count was set, then display the click count.
         clickCount?.let {
             val newClickCount = it + 1
             marker.tag = newClickCount
@@ -271,11 +426,24 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
             ).show()
         }
 
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
         return false
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

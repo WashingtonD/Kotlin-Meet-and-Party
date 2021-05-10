@@ -237,7 +237,7 @@ class MainScreenActivity: AppCompatActivity() {
     }
 
 interface FirebaseCallBack{
-    fun onCallBack(list: MutableList<String>)
+    fun onCallBack(list: ArrayList<String>)
 }
 
 fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
@@ -283,7 +283,7 @@ private fun update_profile()
     //Log.d("Header","Name: $name, Link: ${user.imageLink}")
     val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
     readFirebaseData(object: FirebaseCallBack{
-        override fun onCallBack(list: MutableList<String>) {
+        override fun onCallBack(list: ArrayList<String>) {
             // for(ds in list)
             // {
             user.name = list.elementAt(0)
