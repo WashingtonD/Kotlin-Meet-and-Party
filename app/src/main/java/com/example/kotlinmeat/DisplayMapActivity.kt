@@ -162,15 +162,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
     }*/
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-
-    private val Szymon = LatLng(51.77675517369065, 19.487036284565484)
-    private val Maciek = LatLng(51.776516197060275, 19.489246424793514)
-    private val Bartek = LatLng(51.77396019193792, 19.485677109866533)
-
-    private lateinit var markerSzymon: Marker
-    private lateinit var markerMaciek: Marker
-    private lateinit var markerBartek: Marker
+    
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -244,6 +236,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
     companion object{
         val MY_PERMISSIONS_REQUEST_LOCATION = 99
     }
+
 
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap!!
