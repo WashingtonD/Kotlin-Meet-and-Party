@@ -1,15 +1,10 @@
 package com.example.kotlinmeat
 
 import android.content.Intent
-import android.graphics.Point
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
 import com.example.kotlinmeat.databinding.ActivityMainScreenBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -25,16 +20,14 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
-import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
-import com.mikepenz.materialdrawer.util.DrawerImageLoader
-import com.squareup.picasso.Picasso
+import java.util.*
 
 
 class MainScreenActivity: AppCompatActivity() {
     lateinit var binding: ActivityMainScreenBinding
     lateinit var mDrawer:Drawer
     lateinit var mHeader:AccountHeader
-    lateinit var mToolbar:Toolbar
+    lateinit var mToolbar: androidx.appcompat.widget.Toolbar
 
 
     var user = User()
@@ -46,21 +39,21 @@ class MainScreenActivity: AppCompatActivity() {
         binding = ActivityMainScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //map
 
 
-        user.birthdate = ""
-        user.email = ""
-        user.currentLocation = Point(1,0)
-        user.id = FirebaseAuth.getInstance().uid.toString()
-        user.imageLink = ""
-        user.name = ""
-        user.surename = ""
-        user.nickname = ""
+
+        //user.Birthdate = ""
+        user.setEmail("")
+        user.setCurrentLocation(HashMap<String,Double>())
+        user.setId(FirebaseAuth.getInstance().uid.toString())
+        user.setImageLink("")
+        user.setName("")
+        user.setSurename("")
+        user.setNickname("")
         initUser()
-        Log.d("AfterInit","Username: ${user.name}, Link: ${user.imageLink}")
+        Log.d("AfterInit","Username: ${user.getName()}, Link: ${user.getImageLink()}")
 
-        DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
+   /*     DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
             override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable) {
                 Picasso.with(imageView.context).load(uri).placeholder(placeholder).into(imageView)
             }
@@ -82,7 +75,7 @@ class MainScreenActivity: AppCompatActivity() {
                 return super.placeholder(ctx, tag)
             }
             */
-        })
+        })*/
 
 
 
@@ -207,12 +200,12 @@ class MainScreenActivity: AppCompatActivity() {
                 .withHeaderBackground(R.drawable.header)
                 .withOnAccountHeaderProfileImageListener(object: AccountHeader.OnAccountHeaderProfileImageListener{
                     override fun onProfileImageClick(view: View, profile: IProfile<*>, current: Boolean): Boolean {
-                        intent.putExtra("image",user.imageLink)
-                        intent.putExtra("nickname", user.nickname)
-                        intent.putExtra("name",user.name)
-                        intent.putExtra("surname",user.surename)
-                        intent.putExtra("description",user.info)
-                        intent.putExtra("phone",user.phone)
+                        intent.putExtra("image",user.getImageLink())
+                        intent.putExtra("nickname", user.getNickname())
+                        intent.putExtra("name",user.getName())
+                        intent.putExtra("surname",user.getSurename())
+                        intent.putExtra("description",user.getInfo())
+                        intent.putExtra("phone",user.getPhone())
                         //intent.putExtra("")
                       // var profilePic = user.imageLink
                         startActivity(intent)
@@ -227,7 +220,7 @@ class MainScreenActivity: AppCompatActivity() {
                         ProfileDrawerItem()
                                 .withIdentifier(228)
                                  .withName(name)
-                                .withEmail(user.email)
+                                .withEmail(user.getEmail())
                                 //.withIcon(user.imageLink)
          ).build()
     }
@@ -255,19 +248,19 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
                 val user = ds.getValue(User::class.java)
                 list.add(user!!)
             }*/
-            val user = snapshot.child("name").getValue(String::class.java)
+            val user = snapshot.child("Name").getValue(String::class.java)
             list.add(user!!)
-            val email = snapshot.child("email").getValue(String::class.java)
+            val email = snapshot.child("Email").getValue(String::class.java)
             list.add(email!!)
-            val image = snapshot.child("imageLink").getValue(String::class.java)
+            val image = snapshot.child("ImageLink").getValue(String::class.java)
             list.add(image!!)
-            val surname = snapshot.child("surename").getValue(String::class.java)
-            list.add(surname!!)
-            val phone = snapshot.child("phone").getValue(String::class.java)
+            val surename = snapshot.child("Surename").getValue(String::class.java)
+            list.add(surename!!)
+            val phone = snapshot.child("Phone").getValue(String::class.java)
             list.add(phone!!)
-            val description = snapshot.child("info").getValue(String::class.java)
+            val description = snapshot.child("Info").getValue(String::class.java)
             list.add(description!!)
-            val nickname = snapshot.child("nickname").getValue(String::class.java)
+            val nickname = snapshot.child("Nickname").getValue(String::class.java)
             list.add(nickname!!)
             Log.d("Autho","List: $list")
            // val lii = listOf(user,email,image)
@@ -279,27 +272,27 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
 
 private fun update_profile()
 {
-    val uid = FirebaseAuth.getInstance().uid
+   val uid = FirebaseAuth.getInstance().uid
     //Log.d("Header","Name: $name, Link: ${user.imageLink}")
     val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
     readFirebaseData(object: FirebaseCallBack{
         override fun onCallBack(list: ArrayList<String>) {
             // for(ds in list)
             // {
-            user.name = list.elementAt(0)
-            user.email = list.elementAt(1)
-            user.imageLink = list.elementAt(2)
-            user.surename = list.elementAt(3)
-            user.phone = list.elementAt(4)
-            user.info = list.elementAt(5)
-            user.nickname = list.elementAt(6)
-            Log.d("Autho","User.name = ${user.name}")
+            user.setName(list.elementAt(0))
+            user.setEmail(list.elementAt(1))
+            user.setImageLink(list.elementAt(2))
+            user.setSurename(list.elementAt(3))
+            user.setPhone(list.elementAt(4))
+            user.setInfo(list.elementAt(5))
+            user.setNickname(list.elementAt(6))
+            Log.d("Autho","User.imageLink = ${user.getImageLink()}")
             // }
             mHeader.removeProfileByIdentifier(228)
-            val prof = ProfileDrawerItem().withName(user.name)
-                    .withEmail(user.email)
+            val prof = ProfileDrawerItem().withName(user.getName())
+                    .withEmail(user.getEmail())
                     .withIdentifier(228)
-                    .withIcon(user.imageLink.toUri())
+                    .withIcon(user.getImageLink().toUri())
             mHeader.addProfiles(prof)
         }
     })

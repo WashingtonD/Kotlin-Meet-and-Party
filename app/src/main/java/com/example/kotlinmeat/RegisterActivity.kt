@@ -2,26 +2,117 @@ package com.example.kotlinmeat
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.PropertyName
 
- class User{
-     lateinit var name: String
-     lateinit var id: String
-     lateinit var email: String
-     lateinit var birthdate: String
-     lateinit var currentLocation: Point
-     lateinit var surename: String
-     lateinit var imageLink: String
-     lateinit var info: String
-     lateinit var nickname: String
-     lateinit var phone: String
- }
+class User{
+
+     private lateinit var Name: String
+    private lateinit var Id: String
+    private lateinit var Email: String
+     //lateinit var Birthdate: String
+     private lateinit var CurrentLocation: HashMap<String,Double>
+    private lateinit var Surename: String
+    private  lateinit var ImageLink: String
+    private  lateinit var Info: String
+    private lateinit var Nickname: String
+    private lateinit var Phone: String
+    @PropertyName("Name")
+    public fun getName(): String
+    {
+        return Name;
+    }
+    @PropertyName("Name")
+    public fun setName(name: String)
+    {
+        Name = name
+    }
+    @PropertyName("Id")
+    public fun getId(): String
+    {
+        return Id;
+    }
+    @PropertyName("Id")
+    public fun setId(id: String)
+    {
+        Id = id
+    }
+    @PropertyName("Email")
+    public fun getEmail(): String
+    {
+        return Email;
+    }
+    @PropertyName("Email")
+    public fun setEmail(email: String)
+    {
+        Email = email
+    }
+    @PropertyName("CurrentLocation")
+    public fun getCurrentLocation(): HashMap<String,Double>
+    {
+        return CurrentLocation;
+    }
+    @PropertyName("CurrentLocation")
+    public fun setCurrentLocation(currentlocation: HashMap<String,Double>)
+    {
+        CurrentLocation = currentlocation
+    }
+    @PropertyName("Surename")
+    public fun getSurename(): String
+    {
+        return Surename
+    }
+    @PropertyName("Surename")
+    public fun setSurename(surename: String)
+    {
+        Surename = surename
+    }
+    @PropertyName("ImageLink")
+    public fun getImageLink(): String
+    {
+        return ImageLink;
+    }
+    @PropertyName("ImageLink")
+    public fun setImageLink(imagelink: String)
+    {
+        ImageLink = imagelink
+    }
+    @PropertyName("Info")
+    public fun getInfo(): String
+    {
+        return Info;
+    }
+    @PropertyName("Info")
+    public fun setInfo(info: String)
+    {
+        Info = info
+    }
+    @PropertyName("Nickname")
+    public fun getNickname(): String
+    {
+        return Nickname;
+    }
+    @PropertyName("Nickname")
+    public fun setNickname(nickname: String)
+    {
+        Nickname = nickname
+    }
+    @PropertyName("Phone")
+    public fun getPhone(): String
+    {
+        return Phone;
+    }
+    @PropertyName("Phone")
+    public fun setPhone(phone: String)
+    {
+        Phone = phone
+    }
+}
 
 class RegisterActivity : AppCompatActivity() {
 

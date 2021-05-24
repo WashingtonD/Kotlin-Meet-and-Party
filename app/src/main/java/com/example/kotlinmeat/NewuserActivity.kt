@@ -2,7 +2,6 @@ package com.example.kotlinmeat
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -45,13 +44,13 @@ class NewuserActivity: AppCompatActivity() {
             val u = User()
             val intent = intent
             //u.passw = intent.getStringExtra("Password")!!
-            u.email = intent.getStringExtra("Email")!!
-            u.surename = ""
-            u.birthdate = ""
-            u.currentLocation = Point(1,0)
-            u.id = intent.getStringExtra("id")!!
-            u.name =  binding.editTextTextPersonName.text.toString()
-            Log.d("NewUA","User: ${u.email} and with id: ${u.id} with name ${u.name} was trying to register")
+            u.setEmail(intent.getStringExtra("Email")!!)
+            u.setSurename("")
+            //u.Birthdate = ""
+            u.setCurrentLocation(HashMap<String,Double>())
+            u.setId(intent.getStringExtra("id")!!)
+            u.setName(binding.editTextTextPersonName.text.toString())
+            Log.d("NewUA","User: ${u.getEmail()} and with id: ${u.getId()} with name ${u.getName()} was trying to register")
             uploadImageToFirebase()
         }
 
@@ -106,29 +105,31 @@ class NewuserActivity: AppCompatActivity() {
 
             val user = User()
             //u.passw = intent.getStringExtra("Password")!!
-            user.email = intent.getStringExtra("Email")!!
-            user.surename = binding.editTextSurname.text.toString()
-            user.birthdate = ""
-            user.currentLocation = Point(1,0)
-            user.id = intent.getStringExtra("id")!!
-            user.name =  binding.editTextTextPersonName.text.toString()
-            user.imageLink = profileImageUrl
-            user.nickname = intent.getStringExtra("nickname")!!
-            user.phone = binding.editTextPhone.text.toString()
-            user.info = binding.editTextDescription.text.toString()
-            Log.d("NewUA","${user.email} || ${user.surename} || ${user.nickname} || ${user.birthdate} || ${user.currentLocation} || ${user.name} ||${user.id} ||  ${user.imageLink} ")
+            user.setEmail(intent.getStringExtra("Email")!!)
+            user.setSurename(binding.editTextSurname.text.toString())
+            //user.Birthdate = ""
+            user.setCurrentLocation(HashMap<String,Double>())
+            (user.getCurrentLocation()).put("x",1.21)
+            user.getCurrentLocation().put("y",3.32)
+            user.setId(intent.getStringExtra("id")!!)
+            user.setName(binding.editTextTextPersonName.text.toString())
+            user.setImageLink(profileImageUrl)
+            user.setNickname(intent.getStringExtra("nickname")!!)
+            user.setPhone(binding.editTextPhone.text.toString())
+            user.setInfo(binding.editTextDescription.text.toString())
+            Log.d("NewUA","${user.getEmail()} || ${user.getSurename()} || ${user.getNickname()}"+ /*|| ${user.Birthdate}*/ "|| ${user.getName()} ||${user.getId()} ||  ${user.getImageLink()} ")
             ref.setValue(user)
                     .addOnSuccessListener {
                         Log.d("NewUA","User saved to Firebase database")
                         val intent = Intent(this,MainScreenActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.putExtra("Image_Link",user.imageLink)
-                        intent.putExtra("email",user.email)
-                        intent.putExtra("nickname",user.nickname)
-                        intent.putExtra("id",user.id)
-                        intent.putExtra("surname",user.surename)
-                        intent.putExtra("phone",user.phone)
-                        intent.putExtra("description",user.info)
+                        intent.putExtra("Image_Link",user.getImageLink())
+                        intent.putExtra("email",user.getEmail())
+                        intent.putExtra("nickname",user.getNickname())
+                        intent.putExtra("id",user.getId())
+                        intent.putExtra("surname",user.getSurename())
+                        intent.putExtra("phone",user.getPhone())
+                        intent.putExtra("description",user.getInfo())
                         startActivity(intent)
                     }
         }

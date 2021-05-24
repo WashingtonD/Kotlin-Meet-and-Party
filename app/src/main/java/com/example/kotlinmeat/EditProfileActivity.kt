@@ -45,23 +45,23 @@ class EditProfileActivity: AppCompatActivity() {
             val ref = FirebaseDatabase.getInstance().getReference("users/$id")
             if(binding.editTextTextPersonNameProfile.text.toString() != "" || binding.editTextTextPersonNameProfile.text.toString() != name)
             {
-                ref.child("name").setValue(binding.editTextTextPersonNameProfile.text.toString())
+                ref.child("Name").setValue(binding.editTextTextPersonNameProfile.text.toString())
             }
             if(binding.NickNameEditProfile.text.toString() != "" && binding.NickNameEditProfile.text.toString() != nickname)
             {
-                ref.child("nickname").setValue(binding.NickNameEditProfile.text.toString())
+                ref.child("Nickname").setValue(binding.NickNameEditProfile.text.toString())
             }
             if(binding.PhoneNumberEditProfile.text.toString() != "" && binding.PhoneNumberEditProfile.text.toString() != phone)
             {
-                ref.child("phone").setValue(binding.PhoneNumberEditProfile.text.toString())
+                ref.child("Phone").setValue(binding.PhoneNumberEditProfile.text.toString())
             }
             if(binding.SureNameEditProfile.text.toString() != "" && binding.SureNameEditProfile.text.toString() != surname)
             {
-                ref.child("surename").setValue(binding.SureNameEditProfile.text.toString())
+                ref.child("Surename").setValue(binding.SureNameEditProfile.text.toString())
             }
             if(binding.DescriptionEditProfile.text.toString() != "" && binding.DescriptionEditProfile.text.toString() != description)
             {
-                ref.child("info").setValue(binding.DescriptionEditProfile.text.toString())
+                ref.child("Info").setValue(binding.DescriptionEditProfile.text.toString())
             }
             if(photoCheck) {
                 uploadPhoto()
