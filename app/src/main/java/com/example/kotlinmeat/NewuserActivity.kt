@@ -45,9 +45,9 @@ class NewuserActivity: AppCompatActivity() {
             val intent = intent
             //u.passw = intent.getStringExtra("Password")!!
             u.setEmail(intent.getStringExtra("Email")!!)
-            u.setSurename("")
+            u.setSurname("")
             //u.Birthdate = ""
-            u.setCurrentLocation(HashMap<String,Double>())
+            u.setCurrentLocation(ArrayList<Double>())
             u.setId(intent.getStringExtra("id")!!)
             u.setName(binding.editTextTextPersonName.text.toString())
             Log.d("NewUA","User: ${u.getEmail()} and with id: ${u.getId()} with name ${u.getName()} was trying to register")
@@ -106,18 +106,18 @@ class NewuserActivity: AppCompatActivity() {
             val user = User()
             //u.passw = intent.getStringExtra("Password")!!
             user.setEmail(intent.getStringExtra("Email")!!)
-            user.setSurename(binding.editTextSurname.text.toString())
+            user.setSurname(binding.editTextSurname.text.toString())
             //user.Birthdate = ""
-            user.setCurrentLocation(HashMap<String,Double>())
-            (user.getCurrentLocation()).put("x",1.21)
-            user.getCurrentLocation().put("y",3.32)
+            user.setCurrentLocation(ArrayList<Double>())
+            (user.getCurrentLocation()).add(1.54)
+            user.getCurrentLocation().add(3.32)
             user.setId(intent.getStringExtra("id")!!)
             user.setName(binding.editTextTextPersonName.text.toString())
             user.setImageLink(profileImageUrl)
             user.setNickname(intent.getStringExtra("nickname")!!)
             user.setPhone(binding.editTextPhone.text.toString())
             user.setInfo(binding.editTextDescription.text.toString())
-            Log.d("NewUA","${user.getEmail()} || ${user.getSurename()} || ${user.getNickname()}"+ /*|| ${user.Birthdate}*/ "|| ${user.getName()} ||${user.getId()} ||  ${user.getImageLink()} ")
+            Log.d("NewUA","${user.getEmail()} || ${user.getSurname()} || ${user.getNickname()}"+ /*|| ${user.Birthdate}*/ "|| ${user.getName()} ||${user.getId()} ||  ${user.getImageLink()} ")
             ref.setValue(user)
                     .addOnSuccessListener {
                         Log.d("NewUA","User saved to Firebase database")
@@ -127,7 +127,7 @@ class NewuserActivity: AppCompatActivity() {
                         intent.putExtra("email",user.getEmail())
                         intent.putExtra("nickname",user.getNickname())
                         intent.putExtra("id",user.getId())
-                        intent.putExtra("surname",user.getSurename())
+                        intent.putExtra("surname",user.getSurname())
                         intent.putExtra("phone",user.getPhone())
                         intent.putExtra("description",user.getInfo())
                         startActivity(intent)

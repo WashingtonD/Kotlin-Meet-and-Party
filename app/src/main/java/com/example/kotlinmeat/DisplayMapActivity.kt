@@ -102,11 +102,11 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
             var position = FirebaseDatabase.getInstance().getReference("/users/$uid")
             position.child("CurrentLocation").get().addOnSuccessListener {
                 //startPosOfUser = it.value as Point
-                var pos = it.value as HashMap<String,Double>
+                var pos = it.value as ArrayList<Double>
                 Log.d("MapActivity","${it.value}")
-                var x = pos.get("x")
-                var y = pos.get("y")
-                var marker = map.addMarker(MarkerOptions().position(LatLng(x!!,y!!)))
+                var x = pos.elementAt(0)
+                var y = pos.elementAt(1)
+                var marker = map.addMarker(MarkerOptions().position(LatLng(x,y)))
                 mNamedMarkers.put(uid!!,marker)
                 marker.remove()
             }
@@ -131,10 +131,8 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         if (getDistance(
                                 userpos.position.latitude,
                                 userpos.position.longitude,
-                                (user!!.getCurrentLocation().get("x"))!!,
-                                (user.getCurrentLocation().get("y"))!!
-                            ) < 1000
-                        ) {
+                                (user!!.getCurrentLocation().elementAt(0)),
+                                (user.getCurrentLocation().elementAt(1))) < 1000) {
                             list.add(user)
                         }
                     }
@@ -288,17 +286,17 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         Log.d("MapActivity","Trying to add $key user to map")
                         //var userpos  = mCurrentLocationMarker!!.position
 
-                        var name = snapshot.child("Name").getValue(String::class.java)+ " " + snapshot.child("Surename").getValue(String::class.java)
+                        var name = snapshot.child("Name").getValue(String::class.java)+ " " + snapshot.child("Surname").getValue(String::class.java)
                         var desc = snapshot.child("Info").getValue(String::class.java)
-                        var lat = snapshot.child("CurrentLocation/x").getValue(Int::class.java)
-                        var lng = snapshot.child("CurrentLocation/y").getValue(Int::class.java)
-                        var location = LatLng(lat!!.toDouble(),lng!!.toDouble())
+                        var lat = snapshot.child("CurrentLocation/0").getValue(Double::class.java)
+                        var lng = snapshot.child("CurrentLocation/1").getValue(Double::class.java)
+                        var location = LatLng(lat!!,lng!!)
                         var image = snapshot.child("ImageLink").getValue(String::class.java)
                         var userpos = mNamedMarkers.getOrDefault(FirebaseAuth.getInstance().uid,null)
                         var marker = mNamedMarkers.getOrDefault(key,null)
                         if(marker == null && key != FirebaseAuth.getInstance().uid)
                         {
-                            if(getDistance(userpos!!.position.latitude,userpos.position.longitude,location.latitude,location.longitude) < 1230) {
+                            if(getDistance(userpos!!.position.latitude,userpos.position.longitude,location.latitude,location.longitude) < 51230) {
                                 var im: Bitmap
                                 var options = MarkerOptions().position(location).title(name).snippet(desc+"+"+image)
                                 val request  = ImageRequest.Builder(this@DisplayMapActivity)
@@ -322,9 +320,9 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         var key = snapshot.key
                         Log.d("MapActivity","Location for $key user is updated")
 
-                        var lat = snapshot.child("CurrentLocation/x").getValue(Int::class.java)
-                        var lng = snapshot.child("CurrentLocation/y").getValue(Int::class.java)
-                        var location = LatLng(lat!!.toDouble(),lng!!.toDouble())
+                        var lat = snapshot.child("CurrentLocation/0").getValue(Double::class.java)
+                        var lng = snapshot.child("CurrentLocation/1").getValue(Double::class.java)
+                        var location = LatLng(lat!!,lng!!)
                         var marker = mNamedMarkers.getOrDefault(key,null)
                         if(marker == null)
                         {
@@ -336,10 +334,10 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         {
                             if(marker.position != location)
                             {
-                                var name = snapshot.child("Name").getValue(String::class.java) + " " + snapshot.child("Surename").getValue(String::class.java)
+                                var name = snapshot.child("Name").getValue(String::class.java) + " " + snapshot.child("Surname").getValue(String::class.java)
                                 var desc = snapshot.child("Info").getValue(String::class.java)
                                 var myLat = (mNamedMarkers.getOrDefault(FirebaseAuth.getInstance().uid,null))//!!.position.latitude
-                                if(myLat != null && getDistance(myLat.position.latitude,myLat.position.longitude,marker.position.latitude,marker.position.longitude) < 1000.0) {
+                                if(myLat != null && getDistance(myLat.position.latitude,myLat.position.longitude,marker.position.latitude,marker.position.longitude) < 51000.0) {
                                     mNamedMarkers.remove(key)
                                     marker.remove()
                                     var options = MarkerOptions().position(location).title(name).snippet(desc)

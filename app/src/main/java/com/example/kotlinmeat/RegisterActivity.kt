@@ -3,25 +3,29 @@ package com.example.kotlinmeat
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.PropertyName
+import kotlinx.android.parcel.Parcelize
 
-class User{
+@Parcelize
+class User(): Parcelable{
 
-     private lateinit var Name: String
+    private lateinit var Name: String
     private lateinit var Id: String
     private lateinit var Email: String
-     //lateinit var Birthdate: String
-     private lateinit var CurrentLocation: HashMap<String,Double>
-    private lateinit var Surename: String
+     //lateinit var Birthdate: String private lateinit
+    private lateinit var CurrentLocation: ArrayList<Double>
+    private lateinit var Surname: String
     private  lateinit var ImageLink: String
     private  lateinit var Info: String
     private lateinit var Nickname: String
     private lateinit var Phone: String
+
     @PropertyName("Name")
     public fun getName(): String
     {
@@ -53,24 +57,24 @@ class User{
         Email = email
     }
     @PropertyName("CurrentLocation")
-    public fun getCurrentLocation(): HashMap<String,Double>
+    public fun getCurrentLocation(): ArrayList<Double>
     {
         return CurrentLocation;
     }
     @PropertyName("CurrentLocation")
-    public fun setCurrentLocation(currentlocation: HashMap<String,Double>)
+    public fun setCurrentLocation(currentlocation: ArrayList<Double>)
     {
         CurrentLocation = currentlocation
     }
-    @PropertyName("Surename")
-    public fun getSurename(): String
+    @PropertyName("Surname")
+    public fun getSurname(): String
     {
-        return Surename
+        return Surname
     }
-    @PropertyName("Surename")
-    public fun setSurename(surename: String)
+    @PropertyName("Surname")
+    public fun setSurname(surname: String)
     {
-        Surename = surename
+        Surname = surname
     }
     @PropertyName("ImageLink")
     public fun getImageLink(): String

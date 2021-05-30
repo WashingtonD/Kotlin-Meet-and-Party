@@ -6,12 +6,10 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.kotlinmeat.databinding.ActivityMainScreenBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.mikepenz.materialdrawer.AccountHeader
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
@@ -20,7 +18,10 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.ViewHolder
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class MainScreenActivity: AppCompatActivity() {
@@ -30,56 +31,50 @@ class MainScreenActivity: AppCompatActivity() {
     lateinit var mToolbar: androidx.appcompat.widget.Toolbar
 
 
-    var user = User()
 
+
+companion object{
+    var user = User()
+}
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        verifyUserIsLoggedIn()
+        binding.recyclerviewMainScreen.adapter = adapter
+        binding.recyclerviewMainScreen.addItemDecoration(DividerItemDecoration(this,DividerItemDecoration.VERTICAL))
 
+       //Setting item click listener for message row
+        adapter.setOnItemClickListener { item, view ->
+            val intent = Intent(this,ChatLogActivity::class.java)
+
+            val row = item as MainScreenMessageRow
+            intent.putExtra(NewMessageActivity.USER_KEY,row.chatPartnerUser!!.getName())
+            intent.putExtra("id",row.chatPartnerUser!!.getId())
+            intent.putExtra("image",row.chatPartnerUser!!.getImageLink())
+            startActivity(intent)
+        }
+
+
+
+
+
+        listenForLastestMessages()
 
 
 
         //user.Birthdate = ""
         user.setEmail("")
-        user.setCurrentLocation(HashMap<String,Double>())
+        user.setCurrentLocation(ArrayList<Double>())
         user.setId(FirebaseAuth.getInstance().uid.toString())
         user.setImageLink("")
         user.setName("")
-        user.setSurename("")
+        user.setSurname("")
         user.setNickname("")
         initUser()
         Log.d("AfterInit","Username: ${user.getName()}, Link: ${user.getImageLink()}")
-
-   /*     DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
-            override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable) {
-                Picasso.with(imageView.context).load(uri).placeholder(placeholder).into(imageView)
-            }
-
-            override fun cancel(imageView: ImageView) {
-                Picasso.with(imageView.context).cancelRequest(imageView)
-            }
-
-            /*
-            override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
-                super.set(imageView, uri, placeholder, tag)
-            }
-
-            override fun placeholder(ctx: Context): Drawable {
-                return super.placeholder(ctx)
-            }
-
-            override fun placeholder(ctx: Context, tag: String?): Drawable {
-                return super.placeholder(ctx, tag)
-            }
-            */
-        })*/
-
-
-
-
 
 
 
@@ -90,26 +85,56 @@ class MainScreenActivity: AppCompatActivity() {
 
         initfields()
         initFunc()
-/*        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
-        val textView = findViewById<TextView>(R.id.tv1)
-
-        // Refresh function for the layout
-        swipeRefreshLayout.setOnRefreshListener{
-
-            textView.text = "Refreshed"
-
-            swipeRefreshLayout.isRefreshing = false
-        }*/
-        /* val button = findViewById<Button>(R.id.button_profile)
-
-         button.setOnClickListener {
-             val intent = Intent(this, ProfileActivity::class.java)
-             startActivity(intent)
-         }*/
 
 
     }
 
+    val MainScreenmessagesMap = HashMap<String,ChatMessage>()
+    private fun refreshRecyclerViewMessages(){
+        adapter.clear()
+        MainScreenmessagesMap.values.forEach{
+            adapter.add(MainScreenMessageRow(it))
+        }
+    }
+
+    private fun listenForLastestMessages() {
+        val fromId = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId")
+        ref.addChildEventListener(object: ChildEventListener{
+            override fun onCancelled(error: DatabaseError) {
+            }
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val chatMessage = snapshot.getValue(ChatMessage::class.java)    ?: return
+                MainScreenmessagesMap[snapshot.key!!] = chatMessage
+                refreshRecyclerViewMessages()
+            }
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val chatMessage = snapshot.getValue(ChatMessage::class.java)    ?: return
+                MainScreenmessagesMap[snapshot.key!!] = chatMessage
+                refreshRecyclerViewMessages()
+            }
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+        })
+    }
+
+
+
+    val adapter= GroupAdapter<ViewHolder>()
+
+
+    private fun verifyUserIsLoggedIn()
+    {
+        val id = FirebaseAuth.getInstance().uid
+        if(id == null)
+        {
+            val intent = Intent(this, ChoiceActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+    }
 
 
     private fun initFunc() {
@@ -126,10 +151,11 @@ class MainScreenActivity: AppCompatActivity() {
                 .withSelectedItem(-1)
                 .withAccountHeader(mHeader)
                 .addDrawerItems(
-                         PrimaryDrawerItem().withIdentifier(100)
+                        /* PrimaryDrawerItem().withIdentifier(100)
                                  .withIconTintingEnabled(true)
                                  .withName("My messages")
-                                 .withSelectable(false),
+                                 .withSelectable(false)
+                             ,*/
 
                     //Map drawer
                         PrimaryDrawerItem().withIdentifier(300)
@@ -203,7 +229,7 @@ class MainScreenActivity: AppCompatActivity() {
                         intent.putExtra("image",user.getImageLink())
                         intent.putExtra("nickname", user.getNickname())
                         intent.putExtra("name",user.getName())
-                        intent.putExtra("surname",user.getSurename())
+                        intent.putExtra("surname",user.getSurname())
                         intent.putExtra("description",user.getInfo())
                         intent.putExtra("phone",user.getPhone())
                         //intent.putExtra("")
@@ -221,7 +247,7 @@ class MainScreenActivity: AppCompatActivity() {
                                 .withIdentifier(228)
                                  .withName(name)
                                 .withEmail(user.getEmail())
-                                //.withIcon(user.imageLink)
+                                .withIcon(user.getImageLink().toUri())
          ).build()
     }
 
@@ -243,19 +269,14 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
         }
         override fun onDataChange(snapshot: DataSnapshot) {
          val list = ArrayList<String>()
-            /*for(ds in snapshot.children)
-            {
-                val user = ds.getValue(User::class.java)
-                list.add(user!!)
-            }*/
             val user = snapshot.child("Name").getValue(String::class.java)
             list.add(user!!)
             val email = snapshot.child("Email").getValue(String::class.java)
             list.add(email!!)
             val image = snapshot.child("ImageLink").getValue(String::class.java)
             list.add(image!!)
-            val surename = snapshot.child("Surename").getValue(String::class.java)
-            list.add(surename!!)
+            val surname = snapshot.child("Surname").getValue(String::class.java)
+            list.add(surname!!)
             val phone = snapshot.child("Phone").getValue(String::class.java)
             list.add(phone!!)
             val description = snapshot.child("Info").getValue(String::class.java)
@@ -263,8 +284,6 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
             val nickname = snapshot.child("Nickname").getValue(String::class.java)
             list.add(nickname!!)
             Log.d("Autho","List: $list")
-           // val lii = listOf(user,email,image)
-            //Log.d("Autho","Lii: ${lii.elementAt(0)},${lii.elementAt(1)},${lii.elementAt(2)}")
             firebaseCallBack.onCallBack(list)
         }
     })
@@ -282,7 +301,7 @@ private fun update_profile()
             user.setName(list.elementAt(0))
             user.setEmail(list.elementAt(1))
             user.setImageLink(list.elementAt(2))
-            user.setSurename(list.elementAt(3))
+            user.setSurname(list.elementAt(3))
             user.setPhone(list.elementAt(4))
             user.setInfo(list.elementAt(5))
             user.setNickname(list.elementAt(6))
