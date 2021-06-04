@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#95E66A">
+    android:background="@color/teal_200">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_photo2"
@@ -101,13 +101,13 @@
         android:layout_marginTop="44dp"
         android:background="#FFFFFF"
         android:ems="10"
-        android:gravity="top|start"
         android:fontFamily="sans-serif-condensed"
-        android:padding="5dp"
+        android:gravity="top|start"
         android:inputType="textMultiLine"
         android:lines="4"
         android:maxLines="4"
         android:minLines="1"
+        android:padding="5dp"
         android:text="Description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.517"

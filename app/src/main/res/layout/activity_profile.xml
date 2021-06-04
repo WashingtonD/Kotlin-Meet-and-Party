@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#95E66A">
+    android:background="@color/teal_200">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_photo"
@@ -16,6 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/button_edit"
         android:layout_width="wrap_content"
@@ -42,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:text="Surename"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -55,7 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:text="Nickname"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -68,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:text="Tags"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -82,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:text="Phone number"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -96,7 +97,7 @@
         android:layout_width="215dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:gravity="center"
         android:lines="4"
         android:maxLines="4"
@@ -114,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="#95E66A"
+        android:background="@color/teal_200"
         android:text="Name"
         android:textColor="@color/white"
         android:textSize="25dp"
