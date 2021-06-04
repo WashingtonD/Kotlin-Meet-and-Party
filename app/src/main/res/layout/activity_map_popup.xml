@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapPopupActivity"
-    android:background="#95E66A">
+    android:background="@color/teal_200"
+    tools:context=".MapPopupActivity">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_photo_map_popup"
@@ -63,7 +63,7 @@
         android:id="@+id/button_messages_popup"
         android:layout_width="91dp"
         android:layout_height="55dp"
-        android:background="#FF414D"
+        android:background="@color/purple_200"
         android:src="@drawable/ic_baseline_message_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

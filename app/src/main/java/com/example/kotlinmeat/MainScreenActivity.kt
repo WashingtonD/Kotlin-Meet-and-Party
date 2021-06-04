@@ -322,6 +322,7 @@ private fun update_profile()
 {
      val uid = FirebaseAuth.getInstance().uid
     //Log.d("Header","Name: $name, Link: ${user.imageLink}")
+    Log.d("Autho","Getting profile updated")
     val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
     readFirebaseData(object: FirebaseCallBack{
         override fun onCallBack(list: ArrayList<String>) {
