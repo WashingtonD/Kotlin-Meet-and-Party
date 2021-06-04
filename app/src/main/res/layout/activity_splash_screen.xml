@@ -13,7 +13,7 @@
         android:layout_width="373dp"
         android:layout_height="540dp"
         android:contentDescription="SplashScreen"
-        android:src="@drawable/six_ft_apart"
+        android:src="@drawable/logo_fire"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintLeft_toLeftOf="parent"
