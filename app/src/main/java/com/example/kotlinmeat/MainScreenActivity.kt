@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
@@ -200,6 +201,11 @@ class MainScreenActivity: AppCompatActivity() {
                                     val intent = Intent(this@MainScreenActivity,DisplayMapActivity::class.java)
 //                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     startActivity(intent)
+                                    if(MapValidate == true)
+                                    {
+                                        Toast.makeText(this@MainScreenActivity,"Ooopsie, you have some internet trouble now. Please try again!",Toast.LENGTH_SHORT)
+                                        MapValidate = false;
+                                    }
                                     return false
                                 }
                             } ),

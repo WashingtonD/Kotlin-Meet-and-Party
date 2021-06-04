@@ -33,6 +33,7 @@ import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import kotlin.math.pow
 
+var MapValidate: Boolean = false
 
 class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -194,7 +195,6 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         mapFrag = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFrag?.getMapAsync(this)
 
-        Log.d("AssWeCan","+")
 
 
     }
@@ -261,10 +261,11 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         map = googleMap!!
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
         mLocationRequest = LocationRequest()
+        checkStartUserLocation()
         mLocationRequest.interval = 120000
         mLocationRequest.fastestInterval = 120000
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        checkStartUserLocation()
+
 
 
 
@@ -310,9 +311,11 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                             }
 
                         }
-                        else
+                        if(userpos == null)
                         {
-                            Log.d("MapActivity","NewUser: $key Added")
+//                          val intent = Intent(this@DisplayMapActivity,MainScreenActivity::class.java)
+                            MapValidate = true
+                            finish()
                         }
                     }
                     override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
