@@ -92,7 +92,7 @@ class ProfileActivity: AppCompatActivity() {
                 list.add(email!!)
                 val image = snapshot.child("ImageLink").getValue(String::class.java)
                 list.add(image!!)
-                val surname = snapshot.child("Surename").getValue(String::class.java)
+                val surname = snapshot.child("Surname").getValue(String::class.java)
                 list.add(surname!!)
                 val phone = snapshot.child("Phone").getValue(String::class.java)
                 list.add(phone!!)

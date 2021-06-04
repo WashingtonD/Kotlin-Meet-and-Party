@@ -1,10 +1,20 @@
 package com.example.kotlinmeat
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.kotlinmeat.databinding.ActivityMainScreenBinding
@@ -18,22 +28,30 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
+import com.mikepenz.materialdrawer.util.DrawerImageLoader
+import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import java.util.*
 import kotlin.collections.HashMap
 
 
+
+
+
+
 class MainScreenActivity: AppCompatActivity() {
     lateinit var binding: ActivityMainScreenBinding
-    lateinit var mDrawer:Drawer
-    lateinit var mHeader:AccountHeader
+    lateinit var mDrawer: Drawer
+    lateinit var mHeader: AccountHeader
     lateinit var mToolbar: androidx.appcompat.widget.Toolbar
 
 
 
 
-companion object{
+
+    companion object{
     var user = User()
 }
 
@@ -43,6 +61,7 @@ companion object{
         binding = ActivityMainScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         verifyUserIsLoggedIn()
+        getLocation()
         binding.recyclerviewMainScreen.adapter = adapter
         binding.recyclerviewMainScreen.addItemDecoration(DividerItemDecoration(this,DividerItemDecoration.VERTICAL))
 
@@ -82,11 +101,10 @@ companion object{
 
 
 
-
+        initloader()
         initfields()
         initFunc()
-
-
+        //update_profile()
     }
 
     val MainScreenmessagesMap = HashMap<String,ChatMessage>()
@@ -96,6 +114,17 @@ companion object{
             adapter.add(MainScreenMessageRow(it))
         }
     }
+
+    private fun initloader()
+    {
+        DrawerImageLoader.init(object: AbstractDrawerImageLoader(){
+            override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable) {
+                Picasso.with(imageView.context).load(uri).into(imageView)
+            }
+        })
+    }
+
+
 
     private fun listenForLastestMessages() {
         val fromId = FirebaseAuth.getInstance().uid
@@ -131,6 +160,12 @@ companion object{
         if(id == null)
         {
             val intent = Intent(this, ChoiceActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+        if(intent.getStringExtra("Image_Link") == null)
+        {
+            val intent = Intent(this,NewuserActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
@@ -247,7 +282,7 @@ companion object{
                                 .withIdentifier(228)
                                  .withName(name)
                                 .withEmail(user.getEmail())
-                                .withIcon(user.getImageLink().toUri())
+                                //.withIcon(user.getImageLink().toUri())
          ).build()
     }
 
@@ -291,13 +326,12 @@ fun readFirebaseData(firebaseCallBack: FirebaseCallBack)
 
 private fun update_profile()
 {
-   val uid = FirebaseAuth.getInstance().uid
+     val uid = FirebaseAuth.getInstance().uid
     //Log.d("Header","Name: $name, Link: ${user.imageLink}")
     val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
     readFirebaseData(object: FirebaseCallBack{
         override fun onCallBack(list: ArrayList<String>) {
-            // for(ds in list)
-            // {
+
             user.setName(list.elementAt(0))
             user.setEmail(list.elementAt(1))
             user.setImageLink(list.elementAt(2))
@@ -306,18 +340,104 @@ private fun update_profile()
             user.setInfo(list.elementAt(5))
             user.setNickname(list.elementAt(6))
             Log.d("Autho","User.imageLink = ${user.getImageLink()}")
-            // }
+            val uri = list.elementAt(2).toUri()
             mHeader.removeProfileByIdentifier(228)
             val prof = ProfileDrawerItem().withName(user.getName())
                     .withEmail(user.getEmail())
                     .withIdentifier(228)
-                    .withIcon(user.getImageLink().toUri())
+                    .withIcon(uri)
             mHeader.addProfiles(prof)
         }
     })
+
+}
+
+    lateinit var locationManager: LocationManager
+    var locationGps: Location? = null
+    var locationNetwork: Location? = null
+    var finalLocation: Location? = null
+    private fun getLocation()
+    {
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        var hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        if(hasGps || hasNetwork){
+            if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this,arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_COARSE_LOCATION),100)
+            }
+            if(hasGps)
+            {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0F, object:
+                    LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        locationGps = location
+                    }
+                })
+                val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if(localGpsLocation != null)
+                    locationGps = localGpsLocation
+            }
+            if(hasNetwork)
+            {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0F,object:
+                    LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        locationNetwork = location
+
+                    }
+
+                })
+
+                val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                if(localNetworkLocation != null)
+                    locationNetwork = localNetworkLocation
+            }
+            if(locationGps != null && locationNetwork != null)
+            {
+                if(locationGps!!.accuracy > locationNetwork!!.accuracy)
+                {
+                    finalLocation = locationGps as Location
+                }
+                else
+                {
+                    finalLocation = locationNetwork as Location
+                }
+            }
+            val list = ArrayList<Double>()
+            list.add(1.54)
+            list.add(3.32)
+            if(finalLocation != null)
+            {
+                list[0] = (finalLocation as Location).latitude
+                list[1] = (finalLocation as Location).longitude
+            }
+            else
+            {
+                if(locationGps != null)
+                {
+                    list[0] = (locationGps as Location).latitude
+                    list[1] = (locationGps as Location).longitude
+                }
+                else
+                {
+                    list[0] = (locationNetwork as Location).latitude
+                    list[1] = (locationNetwork as Location).longitude
+                }
+            }
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("users/$uid/CurrentLocation")
+            if(list.count() == 2)
+                ref.setValue(list)
+        }
+        else{
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        }
+
+    }
 }
 
 
 
-}
 

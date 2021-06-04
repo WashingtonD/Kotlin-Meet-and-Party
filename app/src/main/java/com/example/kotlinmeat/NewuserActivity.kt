@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlinmeat.databinding.ActivityNewuserBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +19,8 @@ import com.squareup.picasso.Picasso
 class NewuserActivity: AppCompatActivity() {
 
     lateinit var binding: ActivityNewuserBinding
+    var image: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,23 +82,29 @@ class NewuserActivity: AppCompatActivity() {
             }
             val filename = intent.getStringExtra("id")!!
             val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
-            ref.putFile(selectedPhotoUri!!)
+            if(image == null) {
+                ref.putFile(selectedPhotoUri!!)
                     .addOnSuccessListener {
-                        Log.d("NewUA","Successfully uploaded images ${it.metadata?.path}")
+                        Log.d("NewUA", "Successfully uploaded images ${it.metadata?.path}")
 
 
-                    //accessing to the Image location on storage
+                        //accessing to the Image location on storage
                         ref.downloadUrl.addOnSuccessListener {
-                            Log.d("NewUA","File location: $it")
-
+                            Log.d("NewUA", "File location: $it")
+                            image = it.toString()
                             saveUserToFirebaseDatabase(it.toString())
                         }
 
                     }
 
                     .addOnFailureListener {
-                        Log.d("NewUA","Failed to upload image")
+                        Log.d("NewUA", "Failed to upload image")
                     }
+            }
+            else
+            {
+                saveUserToFirebaseDatabase(image as String)
+            }
         }
 
         private fun saveUserToFirebaseDatabase(profileImageUrl: String)
@@ -111,6 +120,11 @@ class NewuserActivity: AppCompatActivity() {
             user.setCurrentLocation(ArrayList<Double>())
             (user.getCurrentLocation()).add(1.54)
             user.getCurrentLocation().add(3.32)
+            if(binding.editTextTextPersonName.text.isEmpty() || binding.editTextDescription.text.isEmpty() || binding.editTextPhone.text.isEmpty())
+            {
+                Toast.makeText(this,"No empty fields are allowed",Toast.LENGTH_SHORT).show()
+                return
+            }
             user.setId(intent.getStringExtra("id")!!)
             user.setName(binding.editTextTextPersonName.text.toString())
             user.setImageLink(profileImageUrl)

@@ -106,6 +106,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                 Log.d("MapActivity","${it.value}")
                 var x = pos.elementAt(0)
                 var y = pos.elementAt(1)
+                var p0: Marker
                 var marker = map.addMarker(MarkerOptions().position(LatLng(x,y)))
                 mNamedMarkers.put(uid!!,marker)
                 marker.remove()
@@ -185,8 +186,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-
-        checkStartUserLocation()
+        //checkStartUserLocation()
         updateMassOfUsers()
 
 
@@ -194,7 +194,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         mapFrag = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFrag?.getMapAsync(this)
 
-
+        Log.d("AssWeCan","+")
 
 
     }
@@ -264,7 +264,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         mLocationRequest.interval = 120000
         mLocationRequest.fastestInterval = 120000
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-
+        checkStartUserLocation()
 
 
 
@@ -294,7 +294,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                         var image = snapshot.child("ImageLink").getValue(String::class.java)
                         var userpos = mNamedMarkers.getOrDefault(FirebaseAuth.getInstance().uid,null)
                         var marker = mNamedMarkers.getOrDefault(key,null)
-                        if(marker == null && key != FirebaseAuth.getInstance().uid)
+                        if(userpos != null && marker == null && key != FirebaseAuth.getInstance().uid)
                         {
                             if(getDistance(userpos!!.position.latitude,userpos.position.longitude,location.latitude,location.longitude) < 51230) {
                                 var im: Bitmap
@@ -304,7 +304,6 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
                                         result ->
                                         options.icon(getIconFromDrawable(result))
                                     }.build()
-                                //options.icon(getIconFromDrawable(R.drawable.ic_baseline_account_circle_24))
                                 var mark = map.addMarker(options)
                                 mNamedMarkers.put(key!!, mark!!)
                                 val disposable = imageLoader.enqueue(request)
@@ -416,7 +415,9 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.On
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
-}
+
+
+
 
 
 class CustomInfoWindowForGoogleMap(context: Context):GoogleMap.InfoWindowAdapter {
@@ -446,4 +447,5 @@ class CustomInfoWindowForGoogleMap(context: Context):GoogleMap.InfoWindowAdapter
     }
 
 
+}
 }
