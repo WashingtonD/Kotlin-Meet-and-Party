@@ -29,4 +29,4 @@ We've created:
     </ul>
   </li>
 </ul>
-App idea was created by [Hogs-Co](https://github.com/Hogs-Co) and developed by me and [DrGass](https://github.com/DrGass).
+App idea was created by <a href=https://github.com/Hogs-Co>[Hogs-Co]</a> and developed by me and <a href=https://github.com/DrGass>[DrGass]</a>.
